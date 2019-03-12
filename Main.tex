@@ -1,0 +1,72 @@
+\documentclass{scrbook}
+
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+
+%Define BNF Grammar Style
+\lstdefinelanguage{BNF}{
+	morecomment=[s][\texttt]{[}{]},
+	string=[d]',
+	mathescape=true
+}
+%-------------------------------
+
+\author{Philemon Eichin}
+\title{Creating a VisualStudio Language Service using ANTLR}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\part{Grammars}
+\chapter{The (E)BNF Form}
+\lstset{language=BNF,tabsize=4, numbers=left, stepnumber=5, frame=single}
+\begin{lstlisting}[caption={Basic mathematical grammar (BNF)}]
+[S]		$\rightarrow$	[EXPR]
+[EXPR]	$\rightarrow$	[EXPR][BINOP][EXPR]
+			| [UNOP][EXPR] 
+			| '(' [EXPR] ')' 
+			| [NUM]
+[BINOP]	$\rightarrow$	'+' | '-' | '*' | '\' | '%' | '^'
+[UNOP]	$\rightarrow$ 	'-'
+[NUM] 	$\rightarrow$ 	[NUM] [NUM] | '0' | '1' | $\dots$ | '9'
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Better basic mathematical grammar (EBNF)}]
+[S]		$\rightarrow$	[EXPR]
+[EXPR]	$\rightarrow$	[EXPR][BINOP][EXPR]
+			| [UNOP][EXPR] 
+			| '(' [EXPR] ')' 
+			| [NUM]
+[BINOP]	$\rightarrow$	'+' | '-' | '*' | '\' | '%' | '^'
+[UNOP]	$\rightarrow$ 	'-'
+[NUM] 	$\rightarrow$ 	(0 | [NUMS] [NUMP]${}^*$) ('.' [NUMP]${}^*$)?
+[NUMP]	$\rightarrow$ 	'0' | $\dots$ | '9'
+[NUMS]	$\rightarrow$ 	'1' | $\dots$ | '9'
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Basic mathematical grammar (ANTLR grammar)}, language=java]
+
+expression
+	:	expression BINARY expression
+	|	UNARY
+
+NUMBER : ( ZERO | NUMBERSTART NUMBERPART*) (DECIMAL NUMBERPART*)?;
+
+fragment BINARY
+
+fragment UNARY : MINUS;
+
+fragment MINUS : '-';
+
+fragment DECIMAL : '.';
+fragment ZERO : '0';
+fragment NUMBERPART : ('0' .. '9');
+fragment NUMBERSTART : ('1' .. '9');
+\end{lstlisting}
+\chapter{Grammars with ANTLR}
+\part{MEF Framework}
+
+\lstlistoflistings
+\end{document}
